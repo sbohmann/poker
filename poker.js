@@ -1,33 +1,36 @@
+import http from 'http'
+import path from 'path'
+import {contentTypeForFile} from "./contenttype.js"
+import {configuration} from "./configuration.js"
+import {mainScriptDirectory} from "./paths.js"
+import {FileCache} from "./filecache.js"
 
-import http from 'http';
+const cache = FileCache()
 
-import fs from 'fs';
+const server = http.createServer(handleRequest)
 
-import path from 'path';
-
-const DEFAULT_PORT = 3607;
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const configPath = path.join(__dirname, 'configuration.json');
-
-function getPortFromConfig() {
-  try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    return config.port;
-  } catch (error) {
-    console.error('Error reading configuration.json:', error.message);
-    return undefined;
-  }
+function handleRequest(request, response) {
+    const requestUrl = request.url === '/' ? '/index.html' : request.url
+    const filePath = path.join(mainScriptDirectory, 'public', requestUrl)
+    try {
+        const data = cache.get(filePath)
+        response.statusCode = 200
+        response.setHeader('Content-Type', contentTypeForFile(requestUrl))
+        response.end(data)
+    } catch (error) {
+        console.log(error)
+        if (error.code === 'ENOENT') {
+            response.statusCode = 404
+            response.setHeader('Content-Type', 'text/plain')
+            response.end('404 Not Found\n')
+        } else {
+            response.statusCode = 500
+            response.setHeader('Content-Type', 'text/plain')
+            response.end('500 Server Error\n')
+        }
+    }
 }
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello, World!\n');
-});
-
-const PORT = getPortFromConfig() || DEFAULT_PORT;
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
-});
+server.listen(configuration.port, () => {
+    console.log(`Server running at http://localhost:${configuration.port}/`)
+})
