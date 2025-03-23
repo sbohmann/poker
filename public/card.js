@@ -1,4 +1,12 @@
 export function createSvgCard(value) {
+    if (value === undefined) {
+        return createGenericSvgCard('#993300', 'black')
+    } else {
+        return createGenericSvgCard("#004080", '#ffcc00', value)
+    }
+}
+
+function createGenericSvgCard(backgroundColor, circleColor, value) {
     const xmlns = "http://www.w3.org/2000/svg"
     const svg = document.createElementNS(xmlns, "svg")
     svg.setAttribute("width", "200")
@@ -7,7 +15,7 @@ export function createSvgCard(value) {
     const rect = document.createElementNS(xmlns, "rect")
     rect.setAttribute("width", "200")
     rect.setAttribute("height", "300")
-    rect.setAttribute("fill", "#004080")
+    rect.setAttribute("fill", backgroundColor)
     rect.setAttribute("rx", "20")
     rect.setAttribute("ry", "20")
     svg.appendChild(rect)
@@ -36,18 +44,20 @@ export function createSvgCard(value) {
     circle.setAttribute("cx", "100")
     circle.setAttribute("cy", "150")
     circle.setAttribute("r", "70")
-    circle.setAttribute("fill", "#ffcc00")
+    circle.setAttribute("fill", circleColor)
     svg.appendChild(circle)
-    const text = document.createElementNS(xmlns, "text")
-    text.setAttribute("x", "100")
-    text.setAttribute("y", "155")
-    text.setAttribute("text-anchor", "middle")
-    text.setAttribute("dominant-baseline", "middle")
-    text.setAttribute("font-size", "72")
-    text.setAttribute("font-family", "Helvetica,Arial,sans-serif")
-    text.setAttribute("font-weight", "bold")
-    text.setAttribute("fill", "#004080")
-    text.textContent = value.toString()
-    svg.appendChild(text)
+    if (value) {
+        const text = document.createElementNS(xmlns, "text")
+        text.setAttribute("x", "100")
+        text.setAttribute("y", "155")
+        text.setAttribute("text-anchor", "middle")
+        text.setAttribute("dominant-baseline", "middle")
+        text.setAttribute("font-size", "72")
+        text.setAttribute("font-family", "Helvetica,Arial,sans-serif")
+        text.setAttribute("font-weight", "bold")
+        text.setAttribute("fill", "#004080")
+        text.textContent = value.toString()
+        svg.appendChild(text)
+    }
     return svg
 }
