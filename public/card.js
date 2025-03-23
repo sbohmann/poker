@@ -1,4 +1,4 @@
-export function createCardBackSVG(value) {
+export function createSvgCard(value) {
     const xmlns = "http://www.w3.org/2000/svg"
     const svg = document.createElementNS(xmlns, "svg")
     svg.setAttribute("width", "200")
